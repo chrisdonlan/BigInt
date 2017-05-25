@@ -2,6 +2,7 @@
 // Created by Chris Donlan on 5/23/2017.
 //
 
+#include "TestFunctions.h"
 #include "ComplexTest.h"
 #include "../src/Complex.h"
 #include <gmock/gmock.h>
@@ -103,8 +104,8 @@ TEST_F(PolarFunctions,cartesian2polar_q4){
 
 	vector<long double> p = polar(&c);
 	vector<long double> p2= polar(&c2);
-	long double theta = 11*M_PIl / 6;
-	long double theta2 = 10*M_PIl/6;
+	long double theta = -1*M_PIl / 6;
+	long double theta2 = -2*M_PIl/6;
 	long double r = 1;
 	long double epsilon = 1e-10;
 
@@ -298,19 +299,7 @@ TEST_F(PolarFunctions,add_polar){
 	ASSERT_EQ(t2,true);
 }
 
-vector<bool> epsilon_test(vector<long double> expected,vector<long double> observed,long double epsilon){
-	int i;
-	vector<bool> results;
-	for(i = 0; i<expected.size();i++){
-		if (i >= observed.size()) results.push_back(false);
-		else results.push_back(fabsl(expected[i]-observed[i])<epsilon);
-	}
-	return results;
-}
-void assert_true(vector<bool> test){
-	for (int i= 0; i < test.size(); i++)
-		ASSERT_EQ(test[i],true);
-}
+
 TEST_F(PolarFunctions,multiply_polars){
 	long double epsilon = 1e-10;
 	vector<long double> c1 = {1,2},c2 = {3,4},expected = {-5,10};
@@ -363,26 +352,6 @@ TEST_F(CartesianFunctions,scalar_times_cartesian){
 
 
 // New Section: Vector Functions (acting on a vector of complex values)
-vector<vector<bool>> epsilon_test(vector<vector<long double>> expected,vector<vector<long double>> observed, long double epsilon){
-	int i;
-	vector<vector<bool>> results;
-	for(i = 0; i < expected.size(); i++){
-		if(i >= observed.size()) results.push_back({false,false});
-		else {
-			bool a = fabsl(expected[i][0]-observed[i][0])<epsilon;
-			bool b = fabsl(expected[i][1]-observed[i][1])<epsilon;
-			results.push_back({a,b});
-		}
-	}
-	return results;
-}
-void assert_true(vector<vector<bool>> test){
-	for(int i = 0; i < test.size(); i++){
-		for (int j = 0; j < test[i].size(); j++){
-			ASSERT_EQ(test[i][j],true);
-		}
-	}
-}
 TEST_F(PolarVectorFunctions,convert_cartesian_vector){
 	long double epsilon = 1e-10;
 	vector<vector<long double>> c1 = {{1,2},{3,4},{5,6}};

@@ -6,6 +6,7 @@
 #include <math.h>
 #include "Complex.h"
 vector<long double> polar(vector<long double> *c){
+	if ((*c)[0] == 0 && (*c)[1] == 0) return {0,0};
 	long double r = sqrtl(powl((*c)[0],2)+powl((*c)[1],2));
 	long double theta = atanl((*c)[1]/(*c)[0]);
 	// note that the range of arctan is -pi/2 -> pi/2
@@ -13,7 +14,7 @@ vector<long double> polar(vector<long double> *c){
 	bool x = (*c)[0] >=0,i = (*c)[1] >=0;
 	// x = true, c= true, first quadrant
 	if      (x&&i) return {r,          theta}; // Q1
-	else if (x)    return {r,2*M_PIl + theta}; // Q4
+	else if (x)    return {r,          theta}; // Q4
 	else if (i)    return {r,  M_PIl + theta}; // Q2
 	else           return {r,  M_PIl + theta}; // Q3
 }
