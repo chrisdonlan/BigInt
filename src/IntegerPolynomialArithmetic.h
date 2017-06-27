@@ -1,0 +1,8 @@
+//
+// Created by chris on 5/27/2017.
+//
+
+#ifndef BIGINT3_VECTORARITHMETIC_H
+#define BIGINT3_VECTORARITHMETIC_H
+
+#endif //BIGINT3_VECTORARITHMETIC_H

@@ -7,6 +7,7 @@
 #include "Complex.h"
 #include <elf.h>
 #include<vector>
+#include <math.h>
 
 using namespace std;
 vector<long double> nth_root_of_unity(long double n);
@@ -23,4 +24,5 @@ vector<vector<long double>> FFT(vector<vector<long double>> *A,vector<long doubl
 vector<vector<long double>> FFTMultiplyComplex(vector<vector<long double>> A,vector<vector<long double>> B);
 vector<vector<long double>> FFTMultiplyComplex(vector<vector<long double>> *A,vector<vector<long double>> *B);
 vector<long double> FFTMultiply(vector<long double> *A,vector<long double> *B);
+long double optimal_base(long size,long double base);
 #endif //BIGINT3_FFT_H

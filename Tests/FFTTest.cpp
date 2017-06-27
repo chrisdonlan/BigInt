@@ -1,9 +1,9 @@
 //
 // Created by Chris Donlan on 5/23/2017.
 //
-#include "../Tests/TestFunctions.h"
+#include "TestFunctions.h"
 #include "FFTTest.h"
-#include "FFT.h"
+#include "../src/FFT.h"
 #include <gmock/gmock.h>
 #include <vector>
 using namespace std;
@@ -91,23 +91,56 @@ TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multiply){
 	assert_true(test);
 }
 TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multply_zeros_left){
-	// Todo
+	vector<long double> A = {0,0};
+	vector<long double> B = {4,5};
+	vector<long double> C = FFTMultiply(&A,&B);
+	vector<long double> expected = {0,0,0,0};
+	vector<bool> test = epsilon_test(expected,C,epsilon);
+	assert_true(test);
 }
 TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multiply_zeros_right){
-	// Todo
+	vector<long double> A = {1,2};
+	vector<long double> B = {0,0};
+	vector<long double> C = FFTMultiply(&A,&B);
+	vector<long double> expected = {0,0,0,0};
+	vector<bool> test = epsilon_test(expected,C,epsilon);
+	assert_true(test);
 }
 TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multiply_zeros){
-	// Todo
+	vector<long double> A = {0,0};
+	vector<long double> B = {0,0};
+	vector<long double> C = FFTMultiply(&A,&B);
+	vector<long double> expected = {0,0,0,0};
+	vector<bool> test = epsilon_test(expected,C,epsilon);
+	assert_true(test);
 }
 TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multiply_null_left){
-	// Todo
+	vector<long double> A = {};
+	vector<long double> B = {4,5};
+	vector<long double> C = FFTMultiply(&A,&B);
+	vector<long double> expected = {0,0,0,0};
+	vector<bool> test = epsilon_test(expected,C,epsilon);
+	assert_true(test);
 }
 TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multiply_null_right){
-	// Todo
+	vector<long double> A = {1,2};
+	vector<long double> B = {};
+	vector<long double> C = FFTMultiply(&A,&B);
+	vector<long double> expected = {0,0,0,0};
+	vector<bool> test = epsilon_test(expected,C,epsilon);
+	assert_true(test);
 }
 TEST_F(FFTMultiplyComplexTesting,Test_FFT_Multiply_nulls){
-	// Todo
+	vector<long double> A = {};
+	vector<long double> B = {};
+	vector<long double> C = FFTMultiply(&A,&B);
+	vector<long double> expected = {0,0};
+	vector<bool> test = epsilon_test(expected,C,epsilon);
+	assert_true(test);
 }
-
-// ToDo: test negatives
-// ToDo: test randoms
+// ToDo: Test generalized properties of Fourier transform
+//        -- Linearity
+//        -- Perseval's Theorem
+//        -- Shift Theorem
+//  Technically, linearity, the shift theorem, and impulse response
+//  completely characterize the Fourier transform.

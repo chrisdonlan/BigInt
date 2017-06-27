@@ -4,6 +4,7 @@
 
 #include <complex.h>
 #include <math.h>
+#include <cmath>
 #include "BigInt.h"
 #include "FFT.h"
 #include "Complex.h"
@@ -11,13 +12,6 @@
 
 using namespace std;
 
-// ToDo: Write test: my_copy(vector<long double>::const_iterator xi, vector<long double>::const_iterator xe, vector<long double>::iterator outi);
-void my_copy(vector<long double>::const_iterator xi,vector<long double>::const_iterator xe, vector<long double>::iterator outi){
-	while(xi != xe){
-		*outi = *xi;
-		xi++;outi++;
-	}
-}
 void clean_trailing_zeros(BigInt* Z){
 	if (Z->number.size() > 0) {
 		vector<long double>::const_iterator ze = Z->number.end();
@@ -29,112 +23,6 @@ void clean_trailing_zeros(BigInt* Z){
 		}
 	}
 }
-
-// ToDo: Write test: ddiv(long double *x, long double *y, long double *q, long double *r);
-/**
- * Calculates quotient and remainder for x/y
- * @param x : numerator pointer
- * @param y : divisor pointer
- * @param q : quotient pointer
- * @param r : remainder pointer
- */
-inline void ddiv(long double *x,long double *y,long double *q,long double *r){
-	*q = *x / *y;
-	*r = modfl(*x,y);
-	int xx = 0;
-}
-// ToDo: Write test: ddiv(long double *x,int *y, long double *q, long double *r);
-/**
- * Calculates quotient and remainder for x/y
- * @param x : numerator pointer
- * @param y : divisor pointer
- * @param q : quotient pointer
- * @param r : remainder pointer
- */
-inline void ddiv(long double *x,int *y,long double *q,long double *r){
-	*q = *x / *y;
-	*r = trunc(abs(remainder(*x,*y)));
-}
-// ToDo: Write test: ddiv(vector<long double>::iterator *xi, long double *y, long double *q, long double *r);
-/**
- * Calculates quotient and remainder for *xi / y
- * @param xi : iterator whose value pointed to is divided by y
- * @param y  : divisor pointer
- * @param q  : quotient pointer
- * @param r  : remainder pointer
- */
-inline void ddiv(vector<long double>::iterator * xi,long double *y,long double *q,long double *r){
-	//todo: optimize this for one function call!
-	*q = trunc(**xi / *y);
-	*r = trunc(abs(remainder(**xi,*y)));
-}
-
-// ToDo: Write test: ddiv(vector<long double>::const_iterator * xi, long double *y, long double *q,long double *r);
-/**
- * Calculates quotient and remainder for *xi / y
- * @param xi : const_iterator whose value pointed to is divided by y
- * @param y  : divisor pointer
- * @param q  : quotient pointer
- * @param r  : remainder pointer
- */
-inline void ddiv(vector<long double>::const_iterator * xi,long double *y,long double *q,long double *r){
-	//todo: optimize this for one function call!
-	*q = trunc(**xi / *y);
-	*r = trunc(abs(remainder(**xi,*y)));
-}
-// ToDo: Write test: ddiv(vector<long double>::const_iterator *xi, int *y, long double *q, long double *r);
-/**
- * Calculates quotient and remainder for *xi / y
- * @param xi : const_iterator whose value pointed to is divided by y
- * @param y  : divisor pointer
- * @param q  : quotient pointer
- * @param r  : remainder pointer
- */
-inline void ddiv(vector<long double>::const_iterator * xi,int *y,long double *q,long double *r){
-	//todo: optimize this for one function call!
-	*q = trunc(**xi / *y);
-	*r = trunc(abs(remainder(**xi,*y)));
-}
-// ToDo: Write Test: rearrange_subproblem(vector<long double>::iterator *xi,long double *B,long double * carry)
-/**
- * Insertion point for the rearrange function.
- * @param xi : the iterator used in the rearrange
- * @param B  : the base of the BigInt
- * @param carry : the pointer to the value to be carried through the rearrange
- * @return : sign of the subproblem (+|-);
- */
-int  rearrange_subproblem(vector<long double>::iterator *xi,long double *B,long double * carry){
-	/*
-	// todo: make sure I choose a base such that I will not get overflow.
-	// todo: possibly, optimize
-	//
-	// Input: BigInt vector<long double> iterator xi,
-	//        BigInt Base pointer *B,
-	//        The "carry" placeholder pointer
-	//
-	// Output: updates carry, and outputs the sign of number at position xi after adding carry.
-	// Todo: handle the zero case--can't have a negative if the number is zero.
-	// ----------------------------------------------------------------------------------------*/
-	int sign;
-	if (**xi < 0) sign = -1; else sign = 1;
-	**xi += (long double)((long long)*carry);
-
-
-	long double xiv = abs(**xi);  //
-	if (abs(**xi) > *B) {
-		long double r;
-		ddiv(xi,B,carry,&r);
-		*carry *= sign;
-		**xi = (long double)(trunc(abs(r)));
-	} else if (abs(**xi) == *B){
-		**xi = 0;
-		*carry = sign;
-
-	} else *carry = 0;
-	return sign;
-}
-
-// ToDo: Write Test: rearrange(BigInt *X);
 /**
  * Implements Rearrange on a BigInt. Iterates 0 -> n.
  * @param X : the BigInt Pointer
@@ -157,20 +45,16 @@ void rearrange(BigInt *X){
 		// j is the carry
 		j = *xi + j;
 		if (j < 0) sign = -1; else sign = 1;
-
-		// ToDo: turn this into one action.
-		r = remainder(j,X->base);
+		r = remainder(abs(j),X->base); if (r < 0) r = X->base + r;
 		q = trunc(j / X->base);
-		if (q == 0) r = j;
 		j = q;
 
 		*xi = r;xi++;
 	}
 	while(j != 0){
 		if (j <0) sign = -1; else sign = 1;
-		r = remainder(j,X->base);
+		r = remainder(abs(j),X->base); if (r < 0) r = X->base + r;
 		q = trunc(j / X->base);
-		if (q == 0) r = j;
 		j = q;
 
 		X->number.push_back(r);
@@ -178,9 +62,7 @@ void rearrange(BigInt *X){
 	X->sign *= sign;
 	clean_trailing_zeros(X);
 	if (X->number.size() == 0) X->sign = 1;
-
 }
-// ToDo: Write Test: rearrange(BigInt *X,int (*subproblem));
 /**
  * Implements rearrange on a BigInt. Iterates 0 -> n.
  * @param X : BigInt pointer
@@ -206,9 +88,6 @@ void rearrange(BigInt *X,int (*subproblem)(vector<long double>::iterator *xi,lon
 	}
 	if (all_zeros) X->sign = 1;
 }
-
-
-
 //region Add and Subtract (Simple Arithmetic)
 /**
  * Baseline function for BigInt Add and Subtract
@@ -217,29 +96,32 @@ void rearrange(BigInt *X,int (*subproblem)(vector<long double>::iterator *xi,lon
  * @param subproblem : The actual addition or subtraction step (AddSubproblem|SubtractSubproblem)
  * @return : the BigInt that is the value of the operation
  */
-BigInt SimpleArithmetic(BigInt *X,BigInt *Y, long double (*subproblem)(int *signX,vector<long double>::const_iterator *xiter, int *signY,vector<long double>::const_iterator *yiter)){
-	BigInt Z(max(X->number.size(),Y->number.size()),X->base,1);
+BigInt SimpleArithmetic(BigInt *X,BigInt *Y, long double (*subproblem)(long double x, long double y)){
+	vector<long double> z (max(X->number.size(),Y->number.size()),0);
 	ulong loop_size = min(X->number.size(),Y->number.size());
 	ulong i = 0;
-	vector<long double>::const_iterator xi = X->number.begin();
-	vector<long double>::const_iterator yi = Y->number.begin();
-	vector<long double>::iterator zi = Z.number.begin();
 
-	// ToDo: Add: may want to make a parallel version
-	while(i < loop_size){
-		*zi = subproblem(&(X->sign),&xi,&(Y->sign),&yi);
-
-		zi++;xi++;yi++;i++;
+	// loop size
+	long loop = min(X->number.size(),Y->number.size());
+	// difference
+	long difference = abs((long) (X->number.size() - Y->number.size()));
+	bool xgreater = X->number.size() > Y->number.size();
+#pragma omp parallel for
+	for(long i = 0; i < loop; i++){
+		z[i] = subproblem(X->sign*(X->number[i]),Y->sign*(Y->number[i]));
 	}
-	// ToDo: Add: make sure the copying works properly.
-	my_copy(xi,X->number.end(),Z.number.begin()+loop_size);
-	my_copy(yi,Y->number.end(),Z.number.begin()+loop_size);
-
-	// Rearrange update's Z's sign.
-	rearrange(&Z);
-	// delete trailing zeros
-	// ...if all zeros, set sign to 1
-	clean_trailing_zeros(&Z);
+	if (xgreater) {
+#pragma omp parallel for
+		for (long i = loop; i < difference + loop; i++) {
+			z[i] = X->number[i] * (X->sign);
+		}
+	} else {
+#pragma omp parallel for
+		for (long i = loop; i < difference + loop; i++) {
+			z[i] = Y->number[i] * (Y->sign);
+		}
+	}
+	BigInt Z(z,X->base,1);
 	return Z;
 }
 /**
@@ -250,8 +132,8 @@ BigInt SimpleArithmetic(BigInt *X,BigInt *Y, long double (*subproblem)(int *sign
  * @param yiter : the iterator for BigInt Y (right BigInt)
  * @return : BigInt Z = X + Y read left to right.
  */
-inline long double AddSubproblem(int *signX,vector<long double>::const_iterator *xiter, int *signY,vector<long double>::const_iterator *yiter){
-	return *signX * (**xiter) + *signY*(**yiter);
+inline long double AddSubproblem(long double x, long double y){
+	return x + y;
 }
 /**
  * Add subproblem for use in the function "SimpleArithmetic"
@@ -261,28 +143,33 @@ inline long double AddSubproblem(int *signX,vector<long double>::const_iterator 
  * @param yiter : the iterator for BigInt Y (right BigInt)
  * @return : BigInt Z = X - Y read left to right.
  */
-inline long double SubtractSubproblem(int *signX,vector<long double>::const_iterator *xiter, int *signY,vector<long double>::const_iterator *yiter){
-	return (*signX * (**xiter)) - (*signY*(**yiter));
+inline long double SubtractSubproblem(long double x, long double y){
+	return x - y;
 }
 
-void rebase(BigInt *A, BigInt *B){
-	if (A->base != B->base){
-
-		//ToDo: Rebase!!!
-		long double old_base = B->base;
-		long double a_base = A->base;
-
-		if (a_base < old_base) {
-			B->base = A->base;
-			B->rearranged = false;
-			B->update();
+void rebase(BigInt *A, long double base){
+	if (base <= A->base){
+		A->base = base;
+		A->update();
+		return;
+	} else {
+		long double old_base = A->base;
+		vector<long double> new_number(1,0);
+		int j = 0;long double p = 0;
+		for(int i =0; i < A->number.size();i++){
+			if (new_number[j] < base) {
+				j++;
+				new_number.push_back(0);
+			}
+			p = i - j;
+			new_number[j] += powl(old_base,p)*(A->number[i]);
 		}
-		else {
-			// ToDo implement this.
-		}
+		A->number = new_number;
+		A->update();
+		return;
 	}
+	// so, I start accumulating numbers in A until it is >= base, or numbers run out!
 }
-// Todo:Test: Add(BigInt *X,BigInt *Y)
 // Todo:Runtime and Complexity Test: Add(BigInt *X,BigInt *Y)
 /**
  * Evaluates X + Y = Z, left to right, in an immutable fashion (creates new BigInt, Z)
@@ -291,11 +178,11 @@ void rebase(BigInt *A, BigInt *B){
  * @return Z : solution to X + Y
  */
 BigInt Add(BigInt *X,BigInt *Y){
-	rebase(X, Y);
+	// ToDo: parallelize function calls!
+	rebase(X,max(X->base,Y->base));
+	rebase(Y,max(X->base,Y->base));
 	return SimpleArithmetic(X,Y,AddSubproblem);
 }
-
-// Todo:Test: Subtract(BigInt *X, BigInt *Y)
 // ToDo:Runtime and Complexity Test: Subtract(BigInt *X, BigInt *Y)
 /**
  * Evaluates X - Y = Z, left to right, in an immutable fashion (creates new BigInt, Z)
@@ -304,7 +191,8 @@ BigInt Add(BigInt *X,BigInt *Y){
  * @return Z : solution to X - Y, read left to right.
  */
 BigInt Subtract(BigInt *X,BigInt *Y){
-	rebase(X, Y);
+	rebase(X,max(X->base,Y->base));
+	rebase(Y,max(X->base,Y->base));
 	return SimpleArithmetic(X,Y,SubtractSubproblem);
 }
 //endregion
@@ -361,14 +249,7 @@ BigInt Subtract(BigInt *X,BigInt *Y){
 }
 */
 
-// ToDo:Document: MultiplySubproblem(...)
-inline long double MultiplySubproblem(int *signX,vector<long double>::const_iterator *xiter,
-                                      int *signY,vector<long double>::const_iterator *yiter){
-	return (*signX * (**xiter)) * (*signY*(**yiter));
-}
-
 // ToDo: Document: Multiply(BigInt *X,int q)
-// Todo:Test: Multiply(BigInt *X, int q)
 // Todo: Runtime and Complexity Test: Multiply(BigInt *X, int q);
 BigInt Multiply(BigInt *X,int q){
 	if (q == 0){
@@ -376,31 +257,32 @@ BigInt Multiply(BigInt *X,int q){
 		BigInt Z(n,X->base,1);
 		return Z;
 	}
-	vector<long double> n(X->number.size(),0);
-	BigInt Z(n,X->base,1);
-
-
-	int i;
+	vector<long double> z(X->number.size(),0);
+	int absq = abs(q);
 #pragma omp parallel for
-	for(i = 0; i < X->number.size(); i++){
-		Z.number[i] = X->number[i]*q;
+	for(int i = 0; i < X->number.size(); i++){
+		z[i] = X->number[i]*absq;
 	}
-
+	BigInt Z(z,X->base,1);
 	int q_sign;
 	if (q < 0) q_sign = -1; else q_sign = 1;
 	Z.sign = X->sign * q_sign;
-	Z.rearranged = false;
-	Z.update();
 	return Z;
 }
 
 // ToDo: Document: Divide(BigInt *X, int q, long double * remainder)
-// Todo:Test: Divide(BigInt*X, int q, long double * remainder)
 // ToDo:Runtime and Complexity Test: Divide(BigInt*X, int q, long double * remainder)
-BigInt Divide(BigInt *X, int q,long double * remainder){
-	BigInt Z(X->number.size(),X->base,1);
+BigInt Divide(BigInt *X, int q,long double * r){
+	try {if(q == 0) throw 0;}
+	catch (int i){
+		cout << "Error BigInt.cpp line 369: division by zero.";
+	}
+	if (X->number.size() == 0){BigInt Z({0},X->base,1); return Z;}
+
+	vector<long double> z(X->number.size(),0);
+
 	vector<long double>::const_iterator xe = X->number.end();
-	vector<long double>::iterator ze = Z.number.end();
+	vector<long double>::iterator ze = z.end();
 
 	int abs_q = abs(q);
 	int sign_q; if (q >= 0) sign_q = 1; else sign_q = -1;
@@ -409,46 +291,101 @@ BigInt Divide(BigInt *X, int q,long double * remainder){
 	do{
 		xe--;ze--;
 		result = *xe + carry;
-		ddiv(&result,&q,&(*ze),&carry);
+
+		(*ze) = trunc(result / abs_q);
+
+		carry = trunc(remainder(result,abs_q));
+		if (carry < 0) carry = abs_q + carry;
 		carry *= X->base;
 
 	} while(xe != X->number.begin());
 	if (carry > 0){
 		// ToDo: Does the remainder keep the sign of the final number?
-		*remainder = carry;
+		*r = carry;
 	}
 	// Next, the sign..
+	BigInt Z(z,X->base,X->sign);
 	Z.sign *= sign_q;
+	return Z;
 }
 
-// ToDo: Document: Multiply
-// ToDo:Test: Multiply(BigInt *A, BigInt *B)
 // ToDo:Runtime and Complexity test: Multiply(BigInt *A, BigInt *B)
+/// Multiply uses FFT to accomplish the multiply.  Assumes that the bases of A and B have an optimal base,
+/// and sufficiently small to guarantee that integer multiplication will be correct.
+/// rule of thumb is that INT32_MAX / 256 is a good base..Will have to verify this, though.
+/// accuracy changes with O(B^2 * precision of number type * length of number vector);
+/// \param A : A BigInt
+/// \param B : B BigInt
+/// \return Z, the result of A*B
 BigInt Multiply(BigInt *A,BigInt *B){
-	// ToDo: finish this.
-	// ToDo: rebase to optimal base.
-
-
-	
-	// ToDo: both A and B need to have the same base.
 	// for now assume that A and B have a good base, and that the bases are equivalent.
 	vector<vector<long double>> Ac = Real2Complex(&(A->number));
 	vector<vector<long double>> Bc = Real2Complex(&(B->number));
-	vector<vector<long double>> Cc = FFTMultiplyComplex(Ac,Bc);
-
-	vector<long double> C  = Complex2RealPolar(&Cc);
+	vector<long double> C = FFTMultiply(&(A->number),&(B->number));
+	// round to nearest integer
+#pragma omp parallel for
+	for(int i = 0; i < C.size(); i++) C[i] = round(C[i]);
 
 	BigInt Out(C,A->base,A->sign*B->sign);
 	return Out;
 }
 
 
+bool zero(vector<long double> *x){
+	if (x->size() == 0) return true;
+	volatile bool zero = true;
+#pragma omp parallel for shared(zero)
+	for(int i = 0; i < x-> size(); i++){
+		if (zero) continue;
+		if ((*x)[i] != 0) zero = false;
+	}
+	return zero;
+}
+bool ge_one(vector<long double> *x){
+	if (x->size() == 0) return false;
+	if ((*x)[0] >= 1) return true;
 
+	volatile bool geone = false;
+#pragma omp parallel for shared(geone)
+	for(int i=0; i < x->size(); i++){
 
+	}
+}
+vector<vector<long double>> divide(vector<long double> *x,vector<long double> *y){
+	/*
+	 * Input: Two n*sizeof(long double) bit numbers x, y, y >= 1;
+	 * Output: quotient, remainder of x divided by y
+	 */
+	if (zero(x)) return {{0},{0}};
+	vector<long double> x_over_2 = divide(x,2);
+	vector<vector<long double>> q_r = divide(&x_over_2,y);
 
+	vector<long double> q = multiply(&(q_r[0]),2);
+	vector<long double> r = multiply(&(q_r[1]),2);
+	if (remainder(trunc((*x)[0]),2)!= 0) r = add(r,1);
+	if (ge_y(&r,&y)){
+		r = subtract(&r,y);
+		q = add(q,1);
+	}
+	return {q,r};
+}
 // ToDo: Barret's algorithm
 //  ... cant go further before I lock down what I have done so far.
+BigInt Divide(BigInt *A,BigInt *B){
+	vector<long double> a(A->number.size());
+	copy(A->number.begin(),A->number.end(),a.begin());
+	vector<long double> b(B->number.size());
+	copy(B->number.begin(),B->number.end(),b.begin());
+	try{
+		if(not ge_one(&b))
+			if(zero(&b)) throw 0;
+			else throw 1;
+	} catch (int i){
+		if (i == 0) cout<< "divisor is zero. must be greater than or equal to one.";
+		if (i == 1) cout<< "divisor is  <1.  Must be >= 1.";
+	}
 
+}
 
 
 void BigInt::update(){

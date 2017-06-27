@@ -11,7 +11,7 @@ vector<long double> inverse_nth_root_of_unity(long double n){
 }
 vector<vector<long double>> FFTPrep(vector<vector<long double>> *A){
 	long n = 1;
-	while(n <= A->size()) n*=2;
+	while(n < A->size()) n*=2;
 	vector<vector<long double>> B(n,{0,0});
 #pragma omp parallel for
 	for(int i = 0; i < A->size(); i++){
@@ -21,7 +21,7 @@ vector<vector<long double>> FFTPrep(vector<vector<long double>> *A){
 }
 vector<vector<long double>> FFTPrep(vector<long double> *A){
 	long n = 1;
-	while(n <= A->size()) n*=2;
+	while(n < A->size()) n*=2;
 	vector<vector<long double>> B(n,{0,0});
 #pragma omp parallel for
 	for(int i = 0; i < A->size(); i++){
@@ -54,20 +54,26 @@ vector<long double> PadCopy(vector<long double> *A,long double target_size){
 }
 void FFTMultiPrep(vector<long double> *A,vector<long double>*B){
 	// Null case:
-	if (A->size() == 0 && B->size() == 0) return;
+	if (A->size() == 0 && B->size() == 0){
+		A->push_back(0);
+		B->push_back(0);
+	}
 	while(A->size() != B->size()){
 		if (A->size() < B->size()) A->push_back(0);
 		else                       B->push_back(0);
 	}
 
 	long n = 1; long minimum = A->size()*2;
-	while (n <= minimum) n*=2;
+	while (n < minimum) n*=2;
 	PadTo(A,n);
 	PadTo(B,n);
 }
 void FFTMultiPrep(vector<vector<long double>> *A,vector<vector<long double>> *B) {
 	// Null case:
-	if (A->size() == 0 && B->size() == 0) return;
+	if (A->size() == 0 && B->size() == 0) {
+		A->push_back({0,0});
+		B->push_back({0,0});
+	}
 
 	// first, sizes have to be equal
 	while(A->size() != B->size()){
@@ -77,7 +83,7 @@ void FFTMultiPrep(vector<vector<long double>> *A,vector<vector<long double>> *B)
 
 	// next, calculate target
 	long n = 1;long minimum = A->size()*2;
-	while(n <= minimum) n*=2;
+	while(n < minimum) n*=2;
 	PadTo(A,n);
 	PadTo(B,n);
 }
@@ -221,4 +227,19 @@ vector<long double> FFTMultiply(vector<long double> *A,vector<long double> *B){
 	vector<vector<long double>> Bc = Real2Complex(B);
 	vector<vector<long double>> Cc = FFTMultiplyComplex(&Ac,&Bc);
 	return Complex2RealPolar(&Cc);
+}
+long double optimal_base(long size,long double base){
+	long double precision = 1e-18;
+	long double n = (long double) size;
+	long double accuracy = base*base*precision*size;
+	do {
+		if (accuracy < 0.1){
+			base*=2; n = fmaxl(1,n/ 2);
+			accuracy = base*base*precision*n;
+		} else {
+			base /=2; n *= 2;
+			accuracy = base*base*precision*n;
+		}
+	} while(accuracy < 0.1 || accuracy > 0.25);
+	return base;
 }

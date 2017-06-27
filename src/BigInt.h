@@ -123,5 +123,4 @@ inline BigInt operator /(int q,BigInt X){try{throw 0;}catch (int e){cout << "q/B
 inline BigInt operator /(BigInt X,BigInt Y){try{throw 0;}catch (int e){cout << "BigInt/BigInt not implemented yet.";}}
 
 
-
 #endif //BIGINT3_BIGINT_H

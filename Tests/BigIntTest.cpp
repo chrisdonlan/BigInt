@@ -4,7 +4,8 @@
 
 #include "BigIntTest.h"
 #include <gmock/gmock.h>
-
+#include "TestFunctions.h"
+static long double epsilon = 1e-10;
 using testing::Eq;
 namespace {
 	class ClassDeclaration: public testing::Test {
@@ -41,6 +42,10 @@ namespace {
 		BigIntMultiplication(){
 //			object;
 		}
+	};
+	class BigIntDivision:public testing::Test{
+	public:
+		BigIntDivision(){};
 	};
 }
 
@@ -98,6 +103,15 @@ TEST_F(ClassDeclaration,with_vector2){
 		}
 	} else equal = false;
 	ASSERT_EQ(equal,true);
+}
+TEST_F(ClassDeclaration,with_vector3){
+	vector<long double> x(1,55L);
+
+	BigInt X(x,10,1);
+	vector<long double> bi_x = X.number;
+	vector<long double> expected = {5,5};
+	vector<bool> test = epsilon_test(expected,bi_x,epsilon);
+	assert_true(test);
 }
 
 TEST_F(BigIntAddition,sX_plus_sY){
@@ -209,14 +223,15 @@ TEST_F(BigIntLogic,X_gele_Y){
 	bool ppgt = pX >= pY; ASSERT_EQ(ppgt,true);//true
 	bool pngt = pX >= nY; ASSERT_EQ(pngt,true);//true
 	bool pplt = pX <= pY; ASSERT_EQ(pplt,true);//true
-	bool pnlt = pX <= nY;
-	ASSERT_EQ(pnlt,false);//false
+	bool pnlt = pX <= nY; ASSERT_EQ(pnlt,false);//false
 
 	bool nngt = nX >= nY; ASSERT_EQ(nngt,true);//true
 	bool npgt = nX >= pY; ASSERT_EQ(npgt,false);//false
 	bool nnlt = nX <= nY; ASSERT_EQ(nnlt,true);//true
 	bool nplt = nX <= pY; ASSERT_EQ(nplt,true);//true
 }
+
+
 TEST_F(BigIntMultiplication,pn_bigint_times_p_num){
 	vector<long double> x(2,5L);
 	BigInt X(x,10,1);
@@ -247,8 +262,8 @@ TEST_F(BigIntMultiplication,pn_bigint_times_n_num){
 	bool t1 = Y.equals(r);
 	bool t2 = Y2.equals(r);
 
-	bool ysign = Y.sign == 1;
-	bool y2sign = Y2.sign == -1;
+	bool ysign = Y.sign == -1;
+	bool y2sign = Y2.sign == 1;
 
 	ASSERT_EQ(t1&&t2&&ysign&&y2sign,true);
 }
@@ -269,7 +284,6 @@ TEST_F(BigIntMultiplication,pn_bigint_times_zero){
 
 	ASSERT_EQ(t1&&t2&&ys&&y2s,true);
 }
-
 TEST_F(BigIntMultiplication,pnbigint_times_pnbigint){
 	vector<long double> x(1,11L);
 	vector<long double> y(1,11L);
@@ -279,10 +293,10 @@ TEST_F(BigIntMultiplication,pnbigint_times_pnbigint){
 	BigInt Y2(y,10,-1);
 
 
-	BigInt Z = X*Y;
-	BigInt Z2 = X*Y2;
-	BigInt Z3 = X2*Y;
-	BigInt Z4 = X2*Y2;
+	BigInt Z = X*Y; // positive
+	BigInt Z2 = X*Y2; // negative
+	BigInt Z3 = X2*Y; // negative
+	BigInt Z4 = X2*Y2; // positive
 
 	vector<long double> t = {1L,2L,1L};
 
@@ -292,9 +306,9 @@ TEST_F(BigIntMultiplication,pnbigint_times_pnbigint){
 	bool t4 = Z4.equals(t);
 
 	bool s1 = Z.sign ==  1;
-	bool s2 = Z.sign == -1;
-	bool s3 = Z.sign == -1;
-	bool s4 = Z.sign ==  1;
+	bool s2 = Z2.sign == -1;
+	bool s3 = Z3.sign == -1;
+	bool s4 = Z4.sign ==  1;
 
 	bool test = t1&&t2&&t3&&t4&&s1&&s2&&s3&&s4;
 	ASSERT_EQ(test,true);
@@ -321,9 +335,9 @@ TEST_F(BigIntMultiplication,pnbigint_times_pnbigint_diff_bases){
 	bool t4 = Z4.equals(t);
 
 	bool s1 = Z.sign ==  1;
-	bool s2 = Z.sign == -1;
-	bool s3 = Z.sign == -1;
-	bool s4 = Z.sign ==  1;
+	bool s2 = Z2.sign == -1;
+	bool s3 = Z3.sign == -1;
+	bool s4 = Z4.sign ==  1;
 
 	bool test = t1&&t2&&t3&&t4&&s1&&s2&&s3&&s4;
 	ASSERT_EQ(test,true);
@@ -342,4 +356,23 @@ TEST_F(BigIntMultiplication,bigint_times_empty_bigint){
 	bool t2 = Z.sign == 1;
 
 	ASSERT_EQ(t1&&t2,true);
+}
+
+TEST_F(BigIntDivision,pn_bigint_divided_by_num){
+	vector<long double> x(2,6L);
+	BigInt X(x,10,1);
+	BigInt Y(x,10,-1);
+
+	int c = 2;
+	BigInt Z1 = X / c;
+	BigInt Z2 = Y / c;
+
+	vector<long double> r = {3,3};
+	bool t1 = Z1.equals(r);
+	bool t2 = Z1.sign == 1;
+
+	bool t3 = Z2.equals(r);
+	bool t4 = Z2.sign == -1;
+
+	ASSERT_EQ(t1&&t2&&t3&&t4,true);
 }
