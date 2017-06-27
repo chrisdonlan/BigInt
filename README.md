@@ -7,4 +7,4 @@ Src/ contains the important code
 Tests/ contains the unit tests (Google Test setup)
 
 
-ToDo: Barrets algorithm
+ToDo: Barrett Reduction
