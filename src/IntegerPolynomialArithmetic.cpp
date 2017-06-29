@@ -1,5 +1,5 @@
 //
-// Created by chris on 5/27/2017.
+// Created by chris on 5/27/2017. copyright, all rights reserved
 //
 #include <cmath>
 #include <stdlib.h>
