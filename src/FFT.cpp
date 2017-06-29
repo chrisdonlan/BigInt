@@ -1,5 +1,5 @@
 //
-// Created by Chris Donlan on 5/22/2017.
+// Created by Chris Donlan on 5/22/2017. copyright, all rights reserved
 //
 #include <iostream>
 #include "FFT.h"
