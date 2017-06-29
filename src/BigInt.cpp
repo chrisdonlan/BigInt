@@ -1,5 +1,5 @@
 //
-// Created by Chris Donlan on 5/16/2017.
+// Created by Chris Donlan on 5/16/2017. copyright, all rights reserved
 //
 
 #include <complex.h>
