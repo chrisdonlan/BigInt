@@ -9,6 +9,4 @@ Tests/ contains the unit tests (Google Test setup)
 
 ToDo: Barrett Reduction
 
-Chris Donlan Copyright 5/23/2017 All Rights Reserved
-
-(felt bad just leaving it up there with no copyright). 
+(by Chris Donlan copyright 5/23/2017)
